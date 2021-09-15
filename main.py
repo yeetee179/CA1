@@ -29,6 +29,8 @@ Ytrain_non_spam = 0
 Ytest_spam = 0
 Ytest_non_spam = 0
 
+Xtrain_feature_1 = [] #number of counts of 1 for each of the features in X of the training set
+Xtrain_feature_0 = [] #number of counts of 1 for each of the features in X of the training set
 
 def initialise():
 #training set
@@ -45,11 +47,15 @@ def initialise():
         if Ytrain[i][0] == 1:
             global Ytrain_spam
             Ytrain_spam += 1
-
+            for k in range (len(Xtrain[i])):
+                if Xtrain[i] == 1:
+                    Xtrain_feature_1[i] += 1
         else:
             global Ytrain_non_spam
             Ytrain_non_spam += 1
-
+            for k in range (len(Xtrain[i])):
+                if Xtrain[i] == 1:
+                    Xtrain_feature_0[i] += 1
 #test set
     for i in range(len(Xtest)):
         for j in range (len(Xtest[i])):
@@ -73,10 +79,20 @@ def initialise():
 initialise()
 
 #question 1
-#lambda_ml = N1/N, where N1 is the number of spam emails
+#lambda_ml = likelihood of spam. N1/N, where N1 is the number of spam emails
+lambda_ml = Ytrain_spam/train_sample
+a = 0
 
-#find N1, number of non_spam emails
-lambda_ml = Ytest_spam/train_sample
+temp_1 = lambda_ml
+temp_2 = 1 - lambda_ml
+for i in range (test_sample):
+    for j in range (test_feature):
+        if Xtest_bin[i][j] == 1:
+            temp_1 = temp_1 * ((Xtrain_feature_1 + a) / (Ytrain_spam + a + a))
+            temp_2 = temp_1 * ((Xtrain_feature_0 + a) / (Ytrain_spam + a + a))
+        elif Xtest_bin[i][j] == 0:
+            temp_2 = temp_2 * (1 - (Xtrain_feature_0 + a) / (Ytrain_spam + a + a))
+
 
 
 print(Ytrain_spam+Ytrain_non_spam)
