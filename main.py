@@ -48,14 +48,14 @@ def initialise():
             global Ytrain_spam
             Ytrain_spam += 1
             for k in range (len(Xtrain[i])):
-                if Xtrain[i] == 1:
+                if Xtrain[i][0] == 1:
                     Xtrain_feature_1[i] += 1
         else:
             global Ytrain_non_spam
             Ytrain_non_spam += 1
             for k in range (len(Xtrain[i])):
-                if Xtrain[i] == 1:
-                    Xtrain_feature_0[i] += 1
+                if Xtrain[i][0] == 1:
+                    Xtrain_feature_0[i][0] += 1
 #test set
     for i in range(len(Xtest)):
         for j in range (len(Xtest[i])):
@@ -82,20 +82,29 @@ initialise()
 #lambda_ml = likelihood of spam. N1/N, where N1 is the number of spam emails
 lambda_ml = Ytrain_spam/train_sample
 a = 0
-
-temp_1 = lambda_ml
-temp_2 = 1 - lambda_ml
+success = 0
+temp_1 = lambda_ml #y=1
+temp_2 = 1 - lambda_ml #y=0
 for i in range (test_sample):
     for j in range (test_feature):
         if Xtest_bin[i][j] == 1:
-            temp_1 = temp_1 * ((Xtrain_feature_1 + a) / (Ytrain_spam + a + a))
-            temp_2 = temp_1 * ((Xtrain_feature_0 + a) / (Ytrain_spam + a + a))
+            temp_1 = temp_1 * ((Xtrain_feature_1[j] + a) / (Ytrain_spam + a + a))
+            temp_2 = temp_2 * ((Xtrain_feature_0[j] + a) / (Ytrain_non_spam + a + a))
         elif Xtest_bin[i][j] == 0:
-            temp_2 = temp_2 * (1 - (Xtrain_feature_0 + a) / (Ytrain_spam + a + a))
+            temp_1 = temp_1 * (1 - (Xtrain_feature_1[j] + a) / (Ytrain_spam + a + a))
+            temp_2 = temp_2 * (1 - (Xtrain_feature_0[j] + a) / (Ytrain_non_spam + a + a))
+
+    if temp_1 > temp_2:
+        if Ytrain[i][0] == 1:
+            success += 1
+    else:
+        if Ytrain[i][0] == 0:
+            success += 1
+
+error_rate = success/test_sample
+print(success)
 
 
-
-print(Ytrain_spam+Ytrain_non_spam)
 
 
 
@@ -105,9 +114,7 @@ print(Ytrain_spam+Ytrain_non_spam)
 #     print(Xtrain_bin[i])
 #     print(Xtrain_log[i])
 
-print(type(Xtrain[1][1]))
-print(Xtrain[1][1])
-print(Ytrain)
+
 # print(mat.get('Xtest'))
 # print(mat.get('ytrain'))
 # print(mat.get('ytest'))
